@@ -1,0 +1,7 @@
+build/
+dist/
+node_modules/
+.slidev/
+.DS_Store
+.codex/
+.agents/

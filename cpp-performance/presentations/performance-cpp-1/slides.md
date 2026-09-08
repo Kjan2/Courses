@@ -1,6 +1,6 @@
 ---
 theme: default
-title: "Контринтуитивные результаты бенчмарков"
+title: "performance1"
 layout: cover
 highlighter: shiki
 fonts:

@@ -5,3 +5,6 @@ node_modules/
 .DS_Store
 .codex/
 .agents/
+
+# Local source books used to prepare lecture figures.
+cpp-performance/presentations/performance-cpp-2/*.pdf

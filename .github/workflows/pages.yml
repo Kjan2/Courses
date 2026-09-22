@@ -24,12 +24,18 @@ jobs:
           node-version: 24
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
-      - name: Build presentation
+      - name: Build first presentation
         run: >
           pnpm exec slidev build
           cpp-performance/presentations/performance-cpp-1/slides.md
           --out ../../../dist/performance-cpp-1
           --base /${{ github.event.repository.name }}/
+      - name: Build second presentation
+        run: >
+          pnpm exec slidev build
+          cpp-performance/presentations/performance-cpp-2/slides.md
+          --out ../../../dist/performance-cpp-1/performance-cpp-2
+          --base /${{ github.event.repository.name }}/performance-cpp-2/
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

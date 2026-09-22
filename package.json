@@ -5,7 +5,9 @@
   "packageManager": "pnpm@10.15.0",
   "scripts": {
     "build": "slidev build cpp-performance/presentations/performance-cpp-1/slides.md --out ../../../dist/performance-cpp-1 --base ./",
-    "dev": "slidev cpp-performance/presentations/performance-cpp-1/slides.md"
+    "dev": "slidev cpp-performance/presentations/performance-cpp-1/slides.md",
+    "dev:2": "slidev cpp-performance/presentations/performance-cpp-2/slides.md",
+    "build:2": "slidev build cpp-performance/presentations/performance-cpp-2/slides.md --out ../../../dist/performance-cpp-2 --base ./"
   },
   "devDependencies": {
     "@slidev/cli": "52.0.0",

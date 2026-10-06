@@ -846,3 +846,154 @@ Use the accompanying `examples.cpp`.
 <div class="note">Use the manual and measurements for your target CPU. All numerical pipeline examples in this lecture are explicitly defined teaching models.</div>
 
 <!-- These are primary vendor references and original measurement resources. No benchmark results are invented for this lecture. -->
+
+---
+
+# Two tools for performance work
+
+| Question | Tool |
+|---|---|
+| How long does this operation take? | **Google Benchmark**: repeat and time a C++ function |
+| What events occur while it runs? | **perf stat**: count CPU and OS events |
+| Where does the program spend time? | **perf record / report / annotate**: sample execution |
+
+Google Benchmark helps compare implementations on controlled inputs.<br>
+Linux `perf` helps investigate the work and waiting behind those timings.
+
+<div class="callout">Measure a baseline → profile the hot code → form a hypothesis → change one thing → measure again.</div>
+
+<!--
+A short 10–15 minute introduction to the tools. The separate seminar contains the longer investigations and recorded results.
+Benchmarking establishes a cost and a comparison. Profiling locates that cost and provides evidence for an explanation.
+A faster result alone does not tell us which CPU mechanism changed.
+-->
+
+---
+
+# Google Benchmark: a minimal example
+
+```cpp
+static void BM_Sum(benchmark::State& state) {
+  std::vector<std::uint32_t> values(state.range(0), 1);
+  for (auto _ : state) {
+    auto result = sum(values.data(), values.size());
+    benchmark::DoNotOptimize(result);
+  }
+}
+BENCHMARK(BM_Sum)->Arg(4096);
+BENCHMARK_MAIN();
+```
+
+- `Arg(4096)` supplies the input size; setup precedes the timed loop.
+- The framework chooses how many iterations to run.
+
+<div class="note"><code>DoNotOptimize</code> makes the result observable. For benchmarks that write memory, also consider <code>ClobberMemory</code>.</div>
+
+<!--
+Illustrative benchmark source: include benchmark/benchmark.h, vector, cstdint, and cstddef, and declare the sum function from examples.cpp.
+Compile this benchmark source and examples.cpp as separate translation units without LTO, and link Google Benchmark and pthread. BENCHMARK_MAIN supplies main; do not also link benchmark_main.
+For example, after saving the snippet plus includes/declaration as benchmark.cpp and installing the library:
+g++ -O3 -g -fno-omit-frame-pointer -std=c++20 benchmark.cpp examples.cpp -lbenchmark -lpthread -o benchmark
+Each Google Benchmark iteration calls sum over the entire vector. Allocation and initialization are excluded from framework timing.
+DoNotOptimize is not a blanket prohibition on optimizing an expression. Verify generated code and make inputs/results observable; separate translation units help retain the call in this example.
+Reference: https://google.github.io/benchmark/user_guide.html
+-->
+
+---
+
+# Run a benchmark and read its output
+
+```sh
+./benchmark --benchmark_filter='^BM_Sum/4096$' \
+  --benchmark_min_time=0.2s --benchmark_repetitions=7 \
+  --benchmark_out=results.json --benchmark_out_format=json
+```
+
+| Output | Meaning for the sum example |
+|---|---|
+| `Time` / `CPU` | Wall / CPU time per call over all 4,096 values |
+| `Iterations` | Number of calls in an individual measurement |
+| `_median` row | Median across the repeated measurements |
+
+**ns/item = time per call ÷ 4096**
+
+<div class="note">Compare optimized builds on the same input. Keep the variation and raw report; a small difference may be noise.</div>
+
+<!--
+Use --benchmark_list_tests to list cases and --help to inspect available options.
+Google Benchmark can choose different iteration counts for faster and slower functions, so total process runtime is not the comparison metric.
+In aggregate rows, the iteration field counts repetitions rather than kernel calls. Mean, median, standard deviation, and coefficient of variation help interpret repeated measurements.
+Record CPU, compiler, flags, input size, and scheduling conditions. Warm-up and randomized repetition order are additional framework options.
+Reference: https://google.github.io/benchmark/user_guide.html
+-->
+
+---
+
+# perf stat: count events
+
+```sh
+# Replace ./app with your program and arguments.
+perf stat -r 5 \
+  -e cycles:u,instructions:u,branches:u,branch-misses:u -- ./app
+```
+
+| Counter | What it helps investigate |
+|---|---|
+| `cycles` | CPU cycles consumed during execution |
+| `instructions` | Retired instructions; IPC = instructions / cycles |
+| `branches` / `branch-misses` | Branch activity and prediction failures |
+
+`-r 5` repeats the run; `:u` selects user-space execution.
+
+<div class="note">Counts cover the whole process, including startup. Event availability and permissions depend on the CPU and OS; use <code>perf list</code> to inspect supported events.</div>
+
+<!--
+The command uses ./app as a placeholder for a representative workload. Choose enough useful work to avoid startup dominating the counters.
+When profiling a Google Benchmark executable, whole-process totals also include setup, calibration, and warm-up. Do not divide those totals by only the reported timed iterations.
+Measuring only a benchmark's state loop requires additional event gating; that is beyond this introduction and is implemented by the separate seminar's profile.sh.
+Low IPC or a high miss count is evidence to investigate, not a complete diagnosis. Generic cache events can mean different things across CPUs.
+Reference: https://man7.org/linux/man-pages/man1/perf-stat.1.html
+-->
+
+---
+
+# perf record: locate the hot code
+
+```sh
+perf record -e cycles:u -F 999 -g -- ./app
+perf report --stdio
+perf annotate --stdio -M intel
+```
+
+- **record:** sample execution and save it to `perf.data`.
+- **report:** identify functions receiving many samples.
+- **annotate:** inspect sampled instructions alongside source code.
+
+<div class="callout">Build with optimizations, debug information, and frame pointers: <code>-O3 -g -fno-omit-frame-pointer</code>.</div>
+
+<div class="note">Samples can land near the source of a stall. Inspect the hot loop and test a controlled change before deciding what caused the slowdown.</div>
+
+<!--
+-F 999 requests a sampling frequency of 999 Hz; -g records call chains. Frame pointers help unwind stacks; debug information helps map instructions to source.
+-M intel requests Intel syntax for disassembly. perf report and annotate read perf.data by default.
+If hardware events are unavailable but perf works, cpu-clock can still locate hot functions, without branch/cache-miss evidence. If perf itself is unavailable, inspect generated assembly with objdump.
+References: https://man7.org/linux/man-pages/man1/perf-record.1.html and https://man7.org/linux/man-pages/man1/perf-annotate.1.html
+-->
+
+---
+
+# Use the tools together
+
+1. **Benchmark:** establish repeatable timing and check correctness.
+2. **Profile:** find the hot function and inspect its instructions/events.
+3. **Explain:** propose a dependency, prediction, execution, or memory limit.
+4. **Change and repeat:** compare the same workload and check variation.
+
+<div class="callout">Keep the timing result, the profiling evidence, and the explanation connected.</div>
+
+<div class="note">Tool documentation: <a href="https://google.github.io/benchmark/user_guide.html">Google Benchmark</a> · <a href="https://man7.org/linux/man-pages/man1/perf-stat.1.html">perf stat</a> · <a href="https://man7.org/linux/man-pages/man1/perf-record.1.html">perf record</a> · <a href="https://man7.org/linux/man-pages/man1/perf-annotate.1.html">perf annotate</a></div>
+
+<!--
+End the introduction here. Practical investigations and benchmark results remain in the separate seminar directory.
+Changing several properties at once can improve performance while making causal explanation harder. Start with one hypothesis and preserve equivalent results.
+-->

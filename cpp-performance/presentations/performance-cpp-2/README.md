@@ -1,6 +1,8 @@
 # Performance C++ — lecture 2
 
-A 46-slide, 75–90 minute lecture from assembly basics to modern CPU execution.
+A 52-slide deck: the original 46-slide, 75–90 minute CPU lecture plus a six-slide
+introduction to Google Benchmark and perf. Allow another 10–15 minutes for the
+tool introduction.
 Prerequisite: basic C++; no assembly knowledge required. Examples use x86-64
 Intel syntax and the Linux System V ABI. Slides include presenter notes,
 click-to-reveal checkpoint answers, and primary technical references.
@@ -32,3 +34,8 @@ supplied books: CSAPP Figure 3.2 (PDF page 208, zero-based index 207) and
 Inside the Machine Figure 7-5 (printed page 148, PDF page 170). The CPU
 figure also has an enlarged back-end crop for projection. Source captions
 appear on the slides; the complete PDFs are not needed by the built site.
+
+The final section introduces writing and running a Google Benchmark case,
+reading its output, and using perf stat, record, report, and annotate.
+The separate [seminar](seminar/README.md) contains the practical investigations
+and [recorded benchmark results](seminar/results/README.md).

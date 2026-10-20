@@ -1,0 +1,84 @@
+/* Keep the existing course palette; make diagrams and references readable. */
+#slidev-goto-dialog:has(input:disabled) { visibility: hidden; }
+.slidev-layout {
+  padding: 34px 42px;
+  background: radial-gradient(ellipse at top right, #153b59, transparent 65%), #07111c;
+  color: #e7edf5;
+  font: 21px/1.4 Arial, sans-serif;
+}
+.slidev-layout h1 { color: #71c6ff; font-size: 33px; line-height: 1.15; margin-bottom: 20px; }
+.slidev-layout h2 { color: #71c6ff; font-size: 24px; }
+.slidev-layout strong { color: #71c6ff; }
+.slidev-layout p { margin: 12px 0; }
+/* First paragraphs carry definitions; the theme's subtitle dimming hides them. */
+.slidev-layout:not(.cover) h1 + p { opacity: 1; }
+.slidev-layout li { margin: 9px 0; }
+.slidev-layout pre, .slidev-layout pre code { font-size: 16px !important; line-height: 1.45 !important; }
+.slidev-layout .slidev-code { background: #101b2a !important; border: 1px solid #2b4056; padding: 14px !important; }
+.slidev-layout .shiki span { color: var(--shiki-dark, #d7e5f3) !important; }
+.slidev-layout :not(pre) > code { background: #1b3045; color: #b8dfff; }
+.slidev-layout table { width: 100%; font-size: 19px; background: #101b2a; }
+.slidev-layout th, .slidev-layout td { padding: 7px 11px; border-color: #2b4056; }
+.slidev-layout th { color: #71c6ff; }
+.slidev-layout a { color: #93d4ff; }
+.slidev-layout .note, .slidev-layout .subtitle { color: #a8bed0; font-size: 17px; }
+.slidev-layout .source { margin-top: 16px; color: #a8bed0; font-size: 13px; line-height: 1.4; }
+.slidev-layout .callout { margin-top: 20px; padding: 13px 17px; background: #132c3b; border-left: 4px solid #52c7ad; }
+.slidev-layout .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.slidev-layout .flow { display: flex; align-items: center; gap: 9px; margin: 24px 0; font-size: 18px; }
+.slidev-layout .flow b { flex: 1; padding: 15px 10px; background: #153b59; border: 1px solid #39759c; border-radius: 8px; text-align: center; }
+.slidev-layout .panel { padding: 14px 18px; background: #101b2a; border: 1px solid #2b4056; border-radius: 8px; }
+.slidev-layout .panel h2 { margin: 0 0 10px; }
+.slidev-layout .address { display: flex; margin: 28px 0; font: 19px/1.5 'DejaVu Sans Mono', monospace; }
+.slidev-layout .address span { padding: 16px 13px; text-align: center; flex: 1; background: #153b59; border: 1px solid #39759c; }
+.slidev-layout .address span:last-child { flex: 1.4; background: #17473f; }
+.slidev-layout .cache-line { display: grid; grid-template-columns: repeat(8, 1fr); margin: 22px 0; }
+.slidev-layout .cache-line span { padding: 17px 4px; background: #153b59; border: 1px solid #39759c; text-align: center; font-size: 18px; }
+.slidev-layout .cache-line .hot { background: #205d51; color: #c3fff0; }
+.slidev-layout .chart { width: 100%; height: 322px; object-fit: contain; }
+.slidev-layout.compact pre, .slidev-layout.compact pre code { font-size: 14px !important; }
+.slidev-layout.compact li { margin: 7px 0; }
+.slidev-layout.compact table { font-size: 17px; }
+.slidev-layout.exercise { border-top: 5px solid #52c7ad; }
+.slidev-layout.section { display: flex; flex-direction: column; justify-content: center; }
+.slidev-layout.section h1 { font-size: 44px; }
+.slidev-layout.cover h1 { font-size: 57px; }
+.slidev-layout.refs { font-size: 19px; }
+.slidev-layout.refs li { margin: 12px 0; }
+
+/* Teaching diagrams: visit order in a tiled matrix and request overlap. */
+.slidev-layout .tile-picture {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: 440px;
+  margin: 16px auto;
+  gap: 3px;
+}
+.slidev-layout .tile-picture span {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #548099;
+  font-size: 18px;
+}
+.slidev-layout .tile-a { background: #205d51; }
+.slidev-layout .tile-b { background: #1e496a; }
+.slidev-layout .tile-c { background: #514060; }
+.slidev-layout .tile-d { background: #65492e; }
+.slidev-layout .request-timeline {
+  display: grid;
+  grid-template-columns: 1.1fr repeat(4, 1fr);
+  gap: 5px;
+  margin: 18px 0;
+  align-items: stretch;
+  font-size: 16px;
+}
+.slidev-layout .request-timeline > * { padding: 12px 8px; text-align: center; }
+.slidev-layout .request-timeline .request {
+  background: #153b59;
+  border: 1px solid #71c6ff;
+  border-radius: 5px;
+}
+.slidev-layout .request-timeline .parallel {
+  background: #205d51;
+  border-color: #52c7ad;
+}
